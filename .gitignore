@@ -1,1 +1,6 @@
 /Data/
+.DS_Store
+# IDE-specific files
+.vscode/
+.idea/
+cmake-build-debug/
