@@ -1,93 +1,75 @@
-# Read input file
-input <- readLines("Data/3.txt")
+# Read input file as a single string (like Python's approach)
+input <- paste(readLines("Data/3.txt"), collapse = "\n")
 
-# Function for Part 1 - ignores do/don't instructions
+# Function for Part 1 - strict pattern matching
 process_multiplications_part1 <- function(text) {
-  # Pattern for instructions - using the exact specified pattern
+  # Match pattern exactly as in Python
   mul_pattern <- "mul\\((\\d{1,3}),(\\d{1,3})\\)"
   
-  # Find all multiplication matches
-  mul_matches <- gregexpr(mul_pattern, text, perl = TRUE)[[1]]
+  # Find all matches
+  matches <- gregexpr(mul_pattern, text, perl = TRUE)[[1]]
   
-  # If no multiplications found, return empty
-  if (mul_matches[1] == -1) return(numeric(0))
+  # If no matches found, return 0
+  if (matches[1] == -1) return(0)
   
-  # Get all multiplication strings
-  mul_strings <- regmatches(text, list(mul_matches))[[1]]
+  # Get all matches
+  mul_strings <- regmatches(text, list(matches))[[1]]
   
-  # Process all multiplications
-  results <- numeric(0)
+  # Sum all multiplications
+  total <- 0
   for (mul_str in mul_strings) {
     nums <- as.numeric(unlist(strsplit(gsub("mul\\(|\\)", "", mul_str), ",")))
-    result <- nums[1] * nums[2]
-    results <- c(results, result)
+    total <- total + nums[1] * nums[2]
   }
   
-  return(results)
+  return(total)
 }
 
-# Function for Part 2 - simplified approach
+# Function for Part 2 - with state tracking
 process_multiplications_part2 <- function(text) {
-  chars <- strsplit(text, "")[[1]]
-  results <- numeric(0)
-  enabled <- TRUE
-  i <- 1
+  # Patterns exactly as in Python
+  mul_pattern <- "mul\\((\\d{1,3}),(\\d{1,3})\\)"
+  control_pattern <- "do\\(\\)|don't\\(\\)"
   
-  while (i <= length(chars)) {
-    # Check for do() or don't()
-    if (i + 3 <= length(chars) && paste0(chars[i:(i+3)], collapse="") == "do()") {
-      enabled <- TRUE
-      i <- i + 4
-      next
+  # Find all matches with positions
+  mul_matches <- gregexpr(mul_pattern, text, perl = TRUE)[[1]]
+  control_matches <- gregexpr(control_pattern, text, perl = TRUE)[[1]]
+  
+  # Get all matches
+  mul_strings <- if (mul_matches[1] != -1) regmatches(text, list(mul_matches))[[1]] else character(0)
+  control_strings <- if (control_matches[1] != -1) regmatches(text, list(control_matches))[[1]] else character(0)
+  
+  # Create events list similar to Python
+  events <- data.frame(
+    position = c(mul_matches, if(length(control_strings) > 0) control_matches else numeric(0)),
+    type = c(rep("mul", length(mul_matches)), 
+             if(length(control_strings) > 0) rep("control", length(control_strings)) else character(0)),
+    value = c(mul_strings, control_strings),
+    stringsAsFactors = FALSE
+  )
+  events <- events[order(events$position), ]
+  
+  # Process events in order - exactly like Python
+  enabled <- TRUE
+  total <- 0
+  
+  for (i in seq_len(nrow(events))) {
+    if (events$type[i] == "control") {
+      enabled <- events$value[i] == "do()"
+    } else {
+      if (enabled) {
+        nums <- as.numeric(unlist(strsplit(gsub("mul\\(|\\)", "", events$value[i]), ",")))
+        total <- total + nums[1] * nums[2]
+      }
     }
-    if (i + 5 <= length(chars) && paste0(chars[i:(i+5)], collapse="") == "don't()") {
-      enabled <- FALSE
-      i <- i + 6
-      next
-    }
-    
-    # Look for "mul" anywhere (allowing for prefix characters)
-    if (i + 2 <= length(chars) && 
-        paste0(chars[i:(i+2)], collapse="") == "mul" || 
-        (i > 0 && i + 2 <= length(chars) && 
-         paste0(chars[(i):(i+2)], collapse="") == "mul")) {
-      # Skip to after "mul"
-      i <- i + 3
-      # Collect first number
-      num1 <- ""
-      while (i <= length(chars) && !grepl("\\d", chars[i])) {
-        i <- i + 1
-      }
-      while (i <= length(chars) && grepl("\\d", chars[i])) {
-        num1 <- paste0(num1, chars[i])
-        i <- i + 1
-      }
-      # Skip non-digits
-      while (i <= length(chars) && !grepl("\\d", chars[i])) {
-        i <- i + 1
-      }
-      # Collect second number
-      num2 <- ""
-      while (i <= length(chars) && grepl("\\d", chars[i])) {
-        num2 <- paste0(num2, chars[i])
-        i <- i + 1
-      }
-      
-      # If we found two numbers and multiplication is enabled, calculate result
-      if (num1 != "" && num2 != "" && enabled) {
-        results <- c(results, as.numeric(num1) * as.numeric(num2))
-      }
-      next
-    }
-    i <- i + 1
   }
   
-  return(results)
+  return(total)
 }
 
-# Process actual input for both parts
-total_part1 <- sum(unlist(lapply(input, process_multiplications_part1)))
-total_part2 <- sum(unlist(lapply(input, process_multiplications_part2)))
+# Process input directly (not using lapply anymore)
+total_part1 <- process_multiplications_part1(input)
+total_part2 <- process_multiplications_part2(input)
 
 # Output results
 cat("Part 1:", total_part1, "\n")
