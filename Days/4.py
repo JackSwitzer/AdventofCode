@@ -1,77 +1,52 @@
-import numpy as np
+import re
 
 def read_input(file_path):
     with open(file_path, 'r') as file:
         return [list(line.strip()) for line in file.readlines()]
 
 def find_xmas(grid):
-    # Function to find all occurrences of "XMAS"
-    def search_word(word, x, y, dx, dy):
-        for i in range(len(word)):
-            if not (0 <= x < len(grid) and 0 <= y < len(grid[0]) and grid[x][y] == word[i]):
-                return False
-            x += dx
-            y += dy
-        return True
+    def match(matrix, pattern, width):
+        matches = 0
+        for i in range(len(matrix) - width + 1):
+            for j in range(len(matrix[i]) - width + 1):
+                block = "".join(matrix[i + d][j:j + width] for d in range(width))
+                matches += bool(re.match(pattern, block))
+        return matches
 
-    directions = [(0, 1), (1, 0), (1, 1), (1, -1), (0, -1), (-1, 0), (-1, -1), (-1, 1)]
+    # Convert grid to list of strings
+    matrix = ["".join(row) for row in grid]
     count = 0
-    for x in range(len(grid)):
-        for y in range(len(grid[0])):
-            for dx, dy in directions:
-                if search_word("XMAS", x, y, dx, dy):
-                    count += 1
+    
+    # Check all 4 rotations
+    for rotation in range(4):
+        # Count horizontal XMAS
+        count += sum(row.count("XMAS") for row in matrix)
+        # Count diagonal XMAS
+        count += match(matrix, r"X.{4}M.{4}A.{4}S", 4)
+        # Rotate the grid
+        matrix = ["".join(row[::-1]) for row in zip(*matrix)]
+    
     return count
 
 def find_x_mas(grid):
-    def check_leg(x, y, dx, dy):
-        # Check one leg starting from the center A outward
-        if not (0 <= x - dx < len(grid) and 0 <= y - dy < len(grid[0]) and 
-                0 <= x + dx < len(grid) and 0 <= y + dy < len(grid[0])):
-            return False
-            
-        chars = [
-            grid[x - dx][y - dy],    # First char (M or S)
-            grid[x][y],              # Center char (A)
-            grid[x + dx][y + dy],    # Last char (S or M)
-        ]
-        
-        # Debug print for almost-matches
-        if chars[1] == 'A' and (chars[0] in ['M', 'S']) and (chars[2] in ['M', 'S']):
-            print(f"Checking leg at ({x},{y}) dir({dx},{dy}): {''.join(chars)}")
-        
-        return (chars[0] == 'M' and chars[2] == 'S') or (chars[0] == 'S' and chars[2] == 'M')
+    def match(matrix, pattern, width):
+        matches = 0
+        for i in range(len(matrix) - width + 1):
+            for j in range(len(matrix[i]) - width + 1):
+                block = "".join(matrix[i + d][j:j + width] for d in range(width))
+                matches += bool(re.match(pattern, block))
+        return matches
 
+    # Convert grid to list of strings
+    matrix = ["".join(row) for row in grid]
     count = 0
-    seen = set()  # Track unique patterns
-
-    for x in range(len(grid)):
-        for y in range(len(grid[0])):
-            if grid[x][y] == 'A':  # Start from center A
-                # All possible leg combinations
-                leg_pairs = [
-                    # Diagonal pairs
-                    [(1, 1), (-1, -1)],   # Down-right + Up-left
-                    [(1, -1), (-1, 1)],   # Down-left + Up-right
-                    [(-1, -1), (1, 1)],   # Up-left + Down-right
-                    [(-1, 1), (1, -1)],   # Up-right + Down-left
-                ]
-                
-                for d1, d2 in leg_pairs:
-                    if check_leg(x, y, d1[0], d1[1]) and \
-                       check_leg(x, y, d2[0], d2[1]):
-                        pattern_key = tuple(sorted([
-                            tuple([x, y, d1[0], d1[1]]), 
-                            tuple([x, y, d2[0], d2[1]])
-                        ]))
-                        if pattern_key not in seen:
-                            seen.add(pattern_key)
-                            count += 1
-                            print(f"Found X-MAS at ({x}, {y})")
-                            print(f"  Leg 1: ({d1[0]}, {d1[1]})")
-                            print(f"  Leg 2: ({d2[0]}, {d2[1]})")
-
-    print(f"\nTotal unique patterns found: {count}")
+    
+    # Check all 4 rotations
+    for rotation in range(4):
+        count += match(matrix, r"M.M.A.S.S", 3)
+        # Rotate the grid
+        matrix = ["".join(row[::-1]) for row in zip(*matrix)]
+    
     return count
 
 def main():
