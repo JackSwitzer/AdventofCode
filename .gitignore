@@ -4,3 +4,6 @@
 .vscode/
 .idea/
 cmake-build-debug/
+# /Claude/
+/Rust/
+/Instructions/
