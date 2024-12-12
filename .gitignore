@@ -8,3 +8,4 @@ cmake-build-debug/
 /Rust/
 /Instructions/
 Cargo.toml
+/Compiled/
