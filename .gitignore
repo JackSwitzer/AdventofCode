@@ -9,3 +9,25 @@ cmake-build-debug/
 /Instructions/
 Cargo.toml
 /Compiled/
+
+# Python-specific files
+./__pycache__/
+
+# Project directories
+/Data/
+/Rust/
+/Instructions/
+/Compiled/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# IDE and system files
+.vscode/
+.idea/
+cmake-build-debug/
+.DS_Store
+
+# Build files
+Cargo.toml
