@@ -1,6 +1,6 @@
 Advent of Code 2024
+
 Real Life:
-Finals beat me up pretty bad:
 0 points
 8 languages - 3 entirely new to me
 Pythonic and Rust based utils to maximize my GPU performance and easily port common problems such as parseing, path finding, searching etc.
