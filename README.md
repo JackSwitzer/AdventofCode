@@ -1,9 +1,13 @@
 Advent of Code 2024
+Real Life:
+Finals beat me up pretty bad:
+0 points
+8 languages - 3 entirely new to me
+Pythonic and Rust based utils to maximize my GPU performance and easily port common problems such as parseing, path finding, searching etc.
+
+Initial Goals:
 Every day a new language - let's try to get some points
 
 Languages: Python, Java, R, php,  C, C++, Rust, Ocaml
 
 
-Next: Lean, Haksell, C#, JavaScript, TypeScript, Assembley, Bend, CUDA?,  .......
-
-Pivoting slightly to get some points, Rust focus with utils and quick compile based on Sonnet. Will still try to get 10+ languages. 
